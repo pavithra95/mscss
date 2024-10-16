@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <conio.h>
+
+int main(int argc, char *argv[]) {
+    FILE *sourceFile,*destinationFile;
+    char ch;
+    int charCount = 0, wordCount = 0, lineCount = 0;
+    int inWord = 0;
+    // Check if the correct number of arguments is provided
+    if (argc != 3) {
+	printf("Usage: %s <source file> <destination file>\n", argv[0]);
+	return 1;
+    }
+
+    // Open the source file in read mode
+    sourceFile = fopen(argv[1], "r");
+    if (sourceFile == NULL) {
+	printf("Error: Cannot open source file %s\n", argv[1]);
+	return 1;
+    }
+
+    // Open the destination file in write mode
+    destinationFile = fopen(argv[2], "w");
+    if (destinationFile == NULL) {
+	printf("Error: Cannot create/open destination file %s\n", argv[2]);
+	fclose(sourceFile);
+	return 1;
+    }
+
+    // Copy content from source to destination file and count statistics
+    while ((ch = fgetc(sourceFile)) != EOF) {
+        fputc(ch, destinationFile);
+        charCount++;
+
+        // Count lines
+        if (ch == '\n') {
+            lineCount++;
+        }
+
+        // Count words
+        if (ch == ' ' || ch == '\n' || ch == '\t') {
+            inWord = 0;
+        } else if (inWord == 0) {
+            inWord = 1;
+            wordCount++;
+        }
+    }
+
+    // Handle last line if it doesn't end with newline
+    if (charCount > 0 && ch != '\n') {
+        lineCount++;
+    }
+
+    // Append statistics to the destination file
+    fprintf(destinationFile, "\n\nTotal Characters: %d\n", charCount);
+    fprintf(destinationFile, "Total Words: %d\n", wordCount);
+    fprintf(destinationFile, "Total Lines: %d\n", lineCount);
+
+    printf("File copied successfully with statistics appended.\n");
+
+    // Close files
+    fclose(sourceFile);
+    fclose(destinationFile);
+
+    getch(); // Wait for a key press to exit
+    return 0;
+}
